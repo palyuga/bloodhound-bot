@@ -146,7 +146,7 @@ def test_real_post_rent_3():
     assert post.address == "2 Giorgi Gegechkori St"
     assert post.floor == 4
     assert post.size_sqm == 86
-    assert post.pets is "by_agreement"
+    assert post.pets == "by_agreement"
 
 def test_real_post_rent_4():
     text = """#Chugureti 🚇 #StationSquare 📍68 Giorgi Chubinashvili street

@@ -1,5 +1,6 @@
 import logging
 import re
+from datetime import timezone
 from typing import Optional
 
 from telethon.tl.types import Message
@@ -28,6 +29,26 @@ RE_FLOOR = re.compile(r"(\d{1,2})(?:/(\d{1,2}))?\s*Floor", re.IGNORECASE)
 RE_PETS = re.compile(r"#(Allowed|NotAllowed|ByAgreement)", re.IGNORECASE)
 
 MIN_REQUIRED_STRUCTURED_FIELDS = 3  # guard: require N of [district, price, rooms, size, address]
+
+DIGOMI = "Digomi"
+DIDI_DIGOMI = "DidiDigomi"
+# Normalization maps
+DISTRICT_MAP = {
+    "dighomi": DIGOMI,
+    "dididighomi": DIDI_DIGOMI,
+}
+
+METRO_MAP = {
+    "libertysquare": "LibertySquare",
+    "ahmetelitheatre": "AkhmeteliTheatre",
+    "technicaluniversity": "Tcuniversity"
+}
+
+PETS_MAPPING = {
+    "Allowed": "allowed",
+    "NotAllowed": "not_allowed",
+    "ByAgreement": "by_agreement"
+}
 
 # ---------------------
 # parse header
@@ -96,6 +117,8 @@ def parse_post(message: Message | object, channel_id: str) -> Optional[Post]:
 
     # header parsing (first line only)
     district, metro = parse_header_first_line(text)
+    district = normalize_district(district)
+    metro = normalize_metro(metro)
 
     # parse body
     address = None
@@ -108,14 +131,10 @@ def parse_post(message: Message | object, channel_id: str) -> Optional[Post]:
         floor = _clean_int(m.group(1))
         total_floors = _clean_int(m.group(2))
 
-    pets_mapping = {
-        "Allowed": "allowed",
-        "NotAllowed": "not_allowed",
-        "ByAgreement": "by_agreement"
-    }
+
     pets = None
     if m := RE_PETS.search(text):
-        pets = pets_mapping.get(m.group(1))
+        pets = PETS_MAPPING.get(m.group(1))
 
     price = None
     if m := RE_PRICE.findall(text):
@@ -172,20 +191,29 @@ async def sync_channel(client, session, channel, cutoff_date):
     Keep sync_channel behaviour same as before — iterate messages,
     parse via parse_post(), upsert into DB and mark missing as deleted.
     """
+    # ensure cutoff_date is UTC aware, so it is compatible with message.date
+    cutoff_date = cutoff_date.replace(tzinfo=timezone.utc)
+
     entity = await client.get_entity(channel)
     channel_id = str(entity.id)
     logger.info("Syncing channel %s (entity id=%s) since %s", channel, channel_id, cutoff_date)
 
     seen_ids = set()
-    async for message in client.iter_messages(entity, offset_date=cutoff_date):
-        if not getattr(message, "message", None):
+    async for message in client.iter_messages(entity):
+
+        if not getattr(message, "message", None) or not message.text:
             continue
+
+        # stop once we've reached older messages
+        if message.date < cutoff_date:
+            break
+
         parsed = parse_post(message, channel_id)
         seen_ids.add(message.id)
         if parsed is None:
             continue
 
-        # Upsert: try get by PK (channel_id, source_id)
+        # Upsert: try getting by PK (channel_id, source_id)
         existing = session.get(Post, (parsed.channel_id, parsed.source_id))
         if existing:
             # update fields
@@ -240,3 +268,15 @@ def _clean_float(s: Optional[str]) -> Optional[float]:
         except ValueError:
             return None
     return None
+
+def normalize_district(d: str) -> str | None:
+    if not d:
+        return None
+    key = d.strip().lower().replace(" ", "")
+    return DISTRICT_MAP.get(key, d.strip().title())
+
+def normalize_metro(m: str) -> str | None:
+    if not m:
+        return None
+    key = m.strip().lower().replace(" ", "")
+    return METRO_MAP.get(key, m.strip().title())

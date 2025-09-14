@@ -19,7 +19,7 @@ API_ID = int(os.getenv("TELEGRAM_API_ID"))
 API_HASH = os.getenv("TELEGRAM_API_HASH")
 
 # ---- Config ----
-CHANNEL = "t.me/rent_tbilisi_ge"
+CHANNEL = "rent_tbilisi_ge"
 DATABASE_URL = "sqlite:///bloodhound.db"
 SYNC_LOOKBACK = timedelta(days=7)
 SYNC_INTERVAL_MINUTES = 30
