@@ -3,7 +3,6 @@ from src.bloodhound.parser import parse_post
 from src.bloodhound.models import PostType
 
 def make_msg(text, msg_id=1):
-    # SimpleNamespace used in tests resembles telethon.Message with `.message` and `.id`
     return SimpleNamespace(id=msg_id, message=text)
 
 
@@ -54,6 +53,9 @@ def test_real_post1():
     assert post.floor == 9
     assert post.size_sqm == 100
     assert post.pets == "by_agreement"
+    assert "Oven" in post.features
+    assert "Conditioner" in post.features
+    assert "Dishwasher" not in post.features
 
 def test_ignore_rented():
     text = "❗️#Rented\nNice apartment in 📍Vake found a tenant 🤝👏🎉"
@@ -260,6 +262,11 @@ All New apartment with Cozy Interior & City View - No one Lived ❗️
     assert post.floor == 13
     assert post.size_sqm == 50
     assert post.pets is "allowed"
+    assert "WiFi" in post.features
+    assert "Balcony" in post.features
+    assert "Conditioner" in post.features
+    assert "Oven" in post.features
+    assert "SmartTV" in post.features
 
 def test_real_post_rent_6():
     text = """#Vera 🚇 #Libertysquare  
@@ -299,7 +306,7 @@ Prime Location:
     assert post.price == 110000
     assert post.rooms == 1
     assert post.district == "Vera"
-    assert post.metro == "Libertysquare"
+    assert post.metro == "LibertySquare"
     assert post.address == "11 Lado Gudiashvili"
     assert post.floor == 2
     assert post.size_sqm == 54.9

@@ -27,21 +27,20 @@ RE_SELL = re.compile(r"#(Sell|Sale)", re.IGNORECASE)
 RE_RENTED = re.compile(r"#Rented", re.IGNORECASE)
 RE_FLOOR = re.compile(r"(\d{1,2})(?:/(\d{1,2}))?\s*Floor", re.IGNORECASE)
 RE_PETS = re.compile(r"#(Allowed|NotAllowed|ByAgreement)", re.IGNORECASE)
+RE_FEATURES = re.compile(r"✅\s*#([A-Za-z0-9]+)", re.IGNORECASE) # Features like #Oven, #Balcony
 
-MIN_REQUIRED_STRUCTURED_FIELDS = 3  # guard: require N of [district, price, rooms, size, address]
+MIN_REQUIRED_STRUCTURED_FIELDS = 3  # guard: require at least N of tags to be present
 
-DIGOMI = "Digomi"
-DIDI_DIGOMI = "DidiDigomi"
 # Normalization maps
 DISTRICT_MAP = {
-    "dighomi": DIGOMI,
-    "dididighomi": DIDI_DIGOMI,
+    "dighomi": "Digomi",
+    "dididighomi": "DidiDigomi",
 }
 
 METRO_MAP = {
     "libertysquare": "LibertySquare",
     "ahmetelitheatre": "AkhmeteliTheatre",
-    "technicaluniversity": "Tcuniversity"
+    "technicaluniversity": "TCUniversity"
 }
 
 PETS_MAPPING = {
@@ -149,6 +148,10 @@ def parse_post(message: Message | object, channel_id: str) -> Optional[Post]:
     if m := RE_ROOMS.search(text):
         rooms = _clean_int(m.group(1))
 
+    features = []
+    for m in RE_FEATURES.findall(text):
+        features.append(m.strip())
+
     # guard: require at least some structured info
     key_attrs = [district, price, rooms, size_sqm, address]
     present = sum(1 for v in key_attrs if v is not None)
@@ -171,6 +174,7 @@ def parse_post(message: Message | object, channel_id: str) -> Optional[Post]:
             floor=floor,
             price=price,
             pets=pets,
+            features=features,
             tenants=None,
             deleted=False,
         )
@@ -272,11 +276,11 @@ def _clean_float(s: Optional[str]) -> Optional[float]:
 def normalize_district(d: str) -> str | None:
     if not d:
         return None
-    key = d.strip().lower().replace(" ", "")
-    return DISTRICT_MAP.get(key, d.strip().title())
+    d = d.strip().replace(" ", "")
+    return DISTRICT_MAP.get(d.lower(), d)
 
 def normalize_metro(m: str) -> str | None:
     if not m:
         return None
-    key = m.strip().lower().replace(" ", "")
-    return METRO_MAP.get(key, m.strip().title())
+    m = m.strip().replace(" ", "")
+    return METRO_MAP.get(m.lower(), m)

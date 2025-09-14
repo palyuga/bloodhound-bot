@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, Enum
 from sqlalchemy.orm import declarative_base
+from sqlalchemy.dialects.sqlite import JSON
 import enum
 import datetime
 
@@ -29,6 +30,7 @@ class Post(Base):
     price = Column(Integer, nullable=True)
     pets = Column(String, nullable=True)
     tenants = Column(String, nullable=True)
+    features = Column(JSON, default=list)
 
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
