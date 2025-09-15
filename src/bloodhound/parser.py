@@ -53,9 +53,25 @@ PETS_MAPPING = {
     "byagreement": "by_agreement"
 }
 
-# ---------------------
-# parse header
-# ---------------------
+def _preclean_text(text: str) -> str:
+    """
+    Remove known "trash" lines like 'SALE IN TBILISI' at the start of the post,
+    including optional empty line right after.
+    """
+    lines = text.splitlines()
+    cleaned_lines = []
+
+    skip_first = True
+    for ln in lines:
+        if skip_first:
+            if re.match(r"^\s*SALE\s+IN\s+TBILISI", ln, re.IGNORECASE):
+                continue  # skip this line
+            if ln.strip() == "":
+                continue  # skip empty line after it
+            skip_first = False
+        cleaned_lines.append(ln)
+    return "\n".join(cleaned_lines)
+
 def parse_header_first_line(text: str):
     """Extract district, metro, address from the FIRST non-empty line only."""
     first_line = _first_non_empty_line(text)
@@ -101,6 +117,8 @@ def parse_post(message: Message | object, channel_id: str) -> Optional[Post]:
     if not text:
         logger.debug("Empty message text, skip")
         return None
+
+    text = _preclean_text(text)
 
     # ignore rented notifications
     if RE_RENTED.search(text):

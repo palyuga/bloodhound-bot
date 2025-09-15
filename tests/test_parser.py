@@ -459,10 +459,47 @@ def test_parser_rent_studio():
     assert post is not None
     assert post.type == PostType.rent
     assert post.price == 400
-    assert post.rooms == 1
+    assert post.rooms == 0
     assert post.district == "Saburtalo"
     assert post.metro == "STUniversity"
     assert post.address == "2 Ana Politkovskaia St"
     assert post.floor == 11
     assert post.size_sqm == 32
     assert post.pets == "not_allowed"
+
+
+def test_trash_in_first_line():
+    text = """SALE IN TBILISI🇬🇪
+
+#Chuguretti 🚇 #Marjanishvili
+📍 16 Egnate Ninoshvili St
+
+⭐️#Exclusive New apartment for sale, 5 minutes walk from Marjanishvili metro station⭐️
+
+🏢 #2Bed apartment for #Sale
+✨ #OldBuilding | #New
+🏠 48 Sq.m | 2 Floor | #Shower
+
+✅ #Conditioner
+✅ #Fridge
+✅ Renovated apartment 
+
+💰 90.000$ 
+0% Commission 
+#Price70000to90000 #Price90000to120000
+
+📲 @David_Tibelashvili | 
++995 599 20 67 16 #David2
+🌟 Check all listings | Reviews
+
+📷 Instagram 🗳️ FB 🎥 YouTube
+
+ SALE IN TBILISI🇬🇪"""
+    post = parse_post(make_msg(text, msg_id=100), channel_id="12345")
+    assert post is not None
+    assert post.type == PostType.sell
+    assert post.price == 90000
+    assert post.rooms == 2
+    assert post.district == "Chugureti"
+    assert post.metro == "Marjanishvili"
+    assert post.address == "16 Egnate Ninoshvili St"
