@@ -396,3 +396,36 @@ No one Lived❗️
     assert "Balcony" in post.features
     assert "Conditioner" in post.features
     assert "Oven" in post.features
+
+
+def test_parser_rent_chughureti():
+    text = """#Chughureti  🚇 #StationSquare
+📍1-3 Gigi Zaziashvili III Turn
+
+🏢 #1Bed Apartment for #Rent near Karvasla Mall
+✨ Renovated #OldBuilding  | #Mixed | #New
+🏠42 Sq.m | 1 Floor | #CentralHeating | #Bath
+
+✅#Conditioner ✅#WiFi ✅#WashingMachine ✅#Stove 
+✅#Dishwasher ✅#Microwave 
+
+💰 500$ + Deposit 500$
+0% Commission
+#Price500to700 #Price300to500
+
+👬Tenants: 1-2
+🐕Pets: #NotAllowed 
+🕐 #6Month #12Month
+
+📲 @David_Tibelashvili | 
++995 599 20 67 16 #Alex
+🌟 Check all listings | Reviews
+📷 Instagram 🗳️ FB 🎥 YouTube"""
+    post = parse_post(make_msg(text, msg_id=100), channel_id="12345")
+    assert post is not None
+    assert post.type == PostType.rent
+    assert post.price == 500
+    assert post.rooms == 1
+    assert post.district == "Chugureti"
+    assert post.metro == "StationSquare"
+    assert post.address == "1-3 Gigi Zaziashvili III Turn"
