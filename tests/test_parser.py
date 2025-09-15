@@ -429,3 +429,40 @@ def test_parser_rent_chughureti():
     assert post.district == "Chugureti"
     assert post.metro == "StationSquare"
     assert post.address == "1-3 Gigi Zaziashvili III Turn"
+
+def test_parser_rent_studio():
+    text = """#Saburtalo 🚇 #STUniversity
+📍 2 Ana Politkovskaia St
+
+🏢 #Studio apartment For #Rent
+✨ #NewBuilding | #Mixed
+🏠 32 Sq.m | 11 Floor | #CentralHeating | #Bathroom
+ 
+✅#Conditioner
+✅#TV ✅#WiFi
+✅#Stove ✅#Oven ✅#Balcony
+
+👫 Tenants: 1-2
+🐕 Pets: #NotAllowed
+🕐 #6Month #12Month
+
+💰 $400 + $400 Deposit
+0% Commission
+#Price300to500
+
+📲 @David_Tibelashvili | 
++995 599 20 67 16 #Irakli
+🌟 Check all listings | Reviews
+
+📷 Instagram 🗳 FB 🎥 YouTube"""
+    post = parse_post(make_msg(text, msg_id=100), channel_id="12345")
+    assert post is not None
+    assert post.type == PostType.rent
+    assert post.price == 400
+    assert post.rooms == 1
+    assert post.district == "Saburtalo"
+    assert post.metro == "STUniversity"
+    assert post.address == "2 Ana Politkovskaia St"
+    assert post.floor == 11
+    assert post.size_sqm == 32
+    assert post.pets == "not_allowed"

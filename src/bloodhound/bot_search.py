@@ -85,6 +85,8 @@ async def search_posts(filters: Dict[str, Any]) -> List[Post]:
             rooms_sel = filters.get("rooms")
             if rooms_sel:
                 conds = []
+                if 1 in rooms_sel:
+                    conds.append(Post.rooms == 0)
                 if 4 in rooms_sel:
                     conds.append(Post.rooms >= 4)
                 non_four = [r for r in rooms_sel if r != 4]
@@ -298,7 +300,7 @@ async def budget_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
          InlineKeyboardButton("4+", callback_data="room::4"),
          InlineKeyboardButton("Any", callback_data="room::any")]
     ]
-    await update.message.reply_text("Select rooms (multiple allowed):", reply_markup=InlineKeyboardMarkup(kb))
+    await update.message.reply_text("Number of bedrooms (multiple allowed):", reply_markup=InlineKeyboardMarkup(kb))
     return STATE_ROOMS
 
 async def rooms_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -486,28 +488,23 @@ async def send_results_page(q_or_msg: Any, context: ContextTypes.DEFAULT_TYPE, p
         """
         parts = []
 
-        # Type
         if filters.get("type"):
             parts.append(f"Type: {'Rent' if filters['type'] == 'rent' else 'Buy'}")
 
-        # Districts
         districts = filters.get("districts")
         parts.append(f"Districts: {', '.join(districts) if districts else 'Any'}")
 
-        # Max price
         max_price = filters.get("max_price")
         if max_price:
             parts.append(f"Max: ${max_price}")
 
-        # Rooms
         rooms = filters.get("rooms")
         if rooms:
-            parts.append(f"Rooms: {', '.join(['4+' if r == 4 else str(r) for r in rooms])}")
+            parts.append(f"Bedrooms: {', '.join(['4+' if r == 4 else str(r) for r in rooms])}")
 
-        # Pets (only include if True, i.e., user requested pet-friendly)
         pets = filters.get("pets_allowed")
         if pets is True:
-            parts.append("Pets allowed ✅")
+            parts.append("Pet-friendly")
 
         # Features
         features = filters.get("features")
@@ -537,7 +534,7 @@ async def send_results_page(q_or_msg: Any, context: ContextTypes.DEFAULT_TYPE, p
     lines = [f"Found {total} posts — showing {start+1}-{min(end, total)}"]
     for p in page_posts:
         link = f"https://t.me/{CHANNEL_USERNAME}/{p.source_id}"
-        lines.append(f"{p.district or ''} • {p.rooms or '?'} Rooms • ${p.price or '?'} • {p.address or ''}\n{link}")
+        lines.append(f"{p.district or ''} • {p.address or ''} • {p.rooms or '?'} Bedrooms • ${p.price or '?'}\n{link}")
 
     text = f"Your search:\n{filters_summary}\n\nResults:\n" + "\n\n".join(lines)
     keyboard = make_page_keyboard(page, total, prefix="page")

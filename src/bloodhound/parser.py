@@ -22,6 +22,7 @@ RE_ADDRESS = re.compile(rf"📍\s*({TEXT_BEFORE_EMOJI}[^#\n]{{0,120}})")
 RE_PRICE = re.compile(r"💰.*?\$?\s*([0-9][0-9\.,]*)\$?", re.IGNORECASE)
 RE_SIZE = re.compile(r"(\d{1,4}(?:\.\d+)?)\s*(?:Sq\.m|sqm|m2)", re.IGNORECASE)
 RE_ROOMS = re.compile(r"#(\d+)Bed", re.IGNORECASE)
+RE_STUDIO = re.compile(r"#Studio", re.IGNORECASE)
 RE_RENT = re.compile(r"#Rent", re.IGNORECASE)
 RE_SELL = re.compile(r"#(Sell|Sale)", re.IGNORECASE)
 RE_RENTED = re.compile(r"#Rented", re.IGNORECASE)
@@ -148,7 +149,9 @@ def parse_post(message: Message | object, channel_id: str) -> Optional[Post]:
         size_sqm = _clean_float(m.group(1))
 
     rooms = None
-    if m := RE_ROOMS.search(text):
+    if RE_STUDIO.search(text):
+        rooms = 0
+    elif m := RE_ROOMS.search(text):
         rooms = _clean_int(m.group(1))
 
     features = []
