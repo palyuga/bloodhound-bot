@@ -140,7 +140,7 @@ def build_multichoice_keyboard(items: List[str], selected: Optional[List[str]] =
     """
     Build multi-choice inline keyboard with checkmarks for selected items.
     - Keeps original 2-column layout.
-    - Always anchors 'Done' button at the bottom.
+    - Always anchors 'Next' button at the bottom.
     """
     selected = selected or []
     kb = []
@@ -207,7 +207,7 @@ async def type_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     kb.append([InlineKeyboardButton("Any", callback_data="districts::any")])
 
     await q.edit_message_text(
-        "Select districts (toggle). Press Done when finished or Any district to select all.",
+        "Select districts (toggle). Press Next when finished or Any to select all",
         reply_markup=InlineKeyboardMarkup(kb)
     )
     return STATE_DISTRICTS
@@ -355,52 +355,6 @@ async def rooms_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await q.edit_message_text("Select rooms (multiple allowed):", reply_markup=InlineKeyboardMarkup(kb))
     return STATE_ROOMS
-
-# async def rooms_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
-#     q = update.callback_query
-#     await q.answer()
-#     _, val = q.data.split("::", 1)
-#     sel = context.user_data.setdefault("rooms_selected", [])
-#
-#     if val == "any":
-#         # Select Any -> clear selections and proceed to next step automatically
-#         context.user_data["rooms_selected"] = None
-#         # Ask pets question or skip if type is sell
-#         if context.user_data.get("type") == "sell":
-#             return await pets_callback_skip(q, context)  # skip pets for buy
-#         else:
-#             kb = [
-#                 [InlineKeyboardButton("Yes", callback_data="pets::yes"),
-#                  InlineKeyboardButton("No", callback_data="pets::no")]
-#             ]
-#             await q.edit_message_text("Do you have pets?", reply_markup=InlineKeyboardMarkup(kb))
-#             return STATE_PETS
-#
-#     else:
-#         r = 4 if val == "4" else int(val)
-#         # If previously Any was selected, remove it
-#         if sel is None:
-#             sel = []
-#             context.user_data["rooms_selected"] = sel
-#         if r in sel:
-#             sel.remove(r)
-#         else:
-#             sel.append(r)
-#
-#     # build keyboard
-#     kb = []
-#     for label in ["1", "2", "3", "4+"]:
-#         rv = 4 if label == "4+" else int(label)
-#         checked = False if sel is None else rv in sel
-#         lab = f"✅ {label}" if checked else label
-#         kb.append([InlineKeyboardButton(lab, callback_data=f"room::{label.strip('+')}")])
-#
-#     # Add Any option and Done button
-#     kb.append([InlineKeyboardButton("Any", callback_data="room::any")])
-#     kb.append([InlineKeyboardButton("➡️ Next", callback_data="rooms::done")])
-#
-#     await q.edit_message_text("Select rooms (multiple allowed):", reply_markup=InlineKeyboardMarkup(kb))
-#     return STATE_ROOMS
 
 async def rooms_done_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     q = update.callback_query
