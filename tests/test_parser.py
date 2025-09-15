@@ -352,3 +352,47 @@ def test_real_post_rent_6():
     assert post.floor == 2
     assert post.size_sqm == 200
     assert "Balcony" in post.features
+
+def test_real_post_rent_7():
+    text = """#Saburtalo 🚇 #STUniversity 
+📍Demax Saburtalo
+
+No one Lived❗️
+
+🏢 #1Bed Apartment for #Rent 
+✨ #OldBuilding | #New
+🏠51Sq.m | 6Floor | #CentralHeating | #Shower
+
+✅ #WiFi ✅#Balcony
+✅ #Tv ✅ #Oven 
+✅ #Conditioner
+✅ #Microwave
+
+👬Tenants: 1-2
+🐕Pets: #Byagreement 
+🕐  #6 Month #12Month 
+
+💰500$ + Deposit 500$
+ 0% commission 
+#Price300to500
+#Price500to700
+
+📲 @David_Tibelashvili | 
++995 599 20 67 16 #Sergi
+🌟 Check all listings | Reviews
+
+📷 Instagram 🗳️ FB 🎥 YouTube"""
+    post = parse_post(make_msg(text, msg_id=100), channel_id="12345")
+    assert post is not None
+    assert post.type == PostType.rent
+    assert post.price == 500
+    assert post.rooms == 1
+    assert post.district == "Saburtalo"
+    assert post.metro == "STUniversity"
+    assert post.address == "Demax Saburtalo"
+    assert post.floor == 6
+    assert post.size_sqm == 51
+    assert post.pets == "by_agreement"
+    assert "Balcony" in post.features
+    assert "Conditioner" in post.features
+    assert "Oven" in post.features

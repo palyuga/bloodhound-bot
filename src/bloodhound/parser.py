@@ -44,9 +44,9 @@ METRO_MAP = {
 }
 
 PETS_MAPPING = {
-    "Allowed": "allowed",
-    "NotAllowed": "not_allowed",
-    "ByAgreement": "by_agreement"
+    "allowed": "allowed",
+    "notallowed": "not_allowed",
+    "byagreement": "by_agreement"
 }
 
 # ---------------------
@@ -133,7 +133,7 @@ def parse_post(message: Message | object, channel_id: str) -> Optional[Post]:
 
     pets = None
     if m := RE_PETS.search(text):
-        pets = PETS_MAPPING.get(m.group(1))
+        pets = PETS_MAPPING.get(m.group(1).lower())
 
     price = None
     if m := RE_PRICE.findall(text):
