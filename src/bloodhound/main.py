@@ -4,6 +4,7 @@ import schedule
 import time
 from datetime import timedelta, datetime
 import os
+import argparse
 from dotenv import load_dotenv
 
 from telethon import TelegramClient
@@ -12,6 +13,12 @@ from sqlalchemy.orm import sessionmaker
 
 from .models import Base
 from .parser import sync_channel
+
+# ---- CLI args ----
+parser = argparse.ArgumentParser(description="Tbilisi Rent Parser")
+parser.add_argument("--reset", action="store_true", help="Drop all DB content before sync")
+args = parser.parse_args()
+RESET_DB = args.reset
 
 # ---- Load API keys ----
 load_dotenv()
@@ -41,7 +48,7 @@ async def sync_job():
     try:
         async with TelegramClient("bloodhound", API_ID, API_HASH) as client:
             cutoff_date = datetime.utcnow() - SYNC_LOOKBACK
-            await sync_channel(client, session, CHANNEL, cutoff_date)
+            await sync_channel(client, session, CHANNEL, cutoff_date, reset=RESET_DB)
     finally:
         session.close()
     logger.info("Sync job finished")

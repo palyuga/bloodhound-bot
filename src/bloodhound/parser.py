@@ -186,11 +186,7 @@ def parse_post(message: Message | object, channel_id: str) -> Optional[Post]:
                 channel_id, msg_id, district, price, rooms, size_sqm)
     return post
 
-
-# ---------------------
-# Sync helper (kept minimal)
-# ---------------------
-async def sync_channel(client, session, channel, cutoff_date):
+async def sync_channel(client, session, channel, cutoff_date, reset: bool = False):
     """
     Keep sync_channel behaviour same as before — iterate messages,
     parse via parse_post(), upsert into DB and mark missing as deleted.
@@ -201,6 +197,11 @@ async def sync_channel(client, session, channel, cutoff_date):
     entity = await client.get_entity(channel)
     channel_id = str(entity.id)
     logger.info("Syncing channel %s (entity id=%s) since %s", channel, channel_id, cutoff_date)
+
+    if reset:
+        deleted_count = session.query(Post).filter_by(channel_id=channel_id).delete()
+        session.commit()
+        logger.info("Reset enabled: deleted %d existing posts for channel %s", deleted_count, channel_id)
 
     seen_ids = set()
     async for message in client.iter_messages(entity):

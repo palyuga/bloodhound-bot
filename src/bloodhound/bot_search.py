@@ -26,15 +26,15 @@ from sqlalchemy.orm import sessionmaker
 import sqlalchemy
 
 # Import your models
-from src.bloodhound.models import Post, PostType  # <-- ensure pythonpath includes repo root
+from src.bloodhound.models import Post, PostType
 
-BUDGET_QUESTION = "Max budget in USD? (send a number or type 'skip')"
+BUDGET_QUESTION = "Max budget in USD (send a number or type 'Skip')"
 
 # --- Config & logging ---
 load_dotenv()
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///bloodhound.db")
-CHANNEL_USERNAME = "rent_tbilisi_ge"  # used for links
+CHANNEL_USERNAME = "rent_tbilisi_ge" # used to build links
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
 logger = logging.getLogger("rentbot")
@@ -57,10 +57,9 @@ Session = sessionmaker(bind=engine, future=True)
 PAGE_SIZE = 10
 
 # --- Predefined features scaffold ---
-PREDEFINED_FEATURES = ["Balcony", "Dishwasher", "WiFi", "Parking", "Air Conditioning"]
+PREDEFINED_FEATURES = ["Balcony", "Parking", "Conditioner", "Oven", "Dishwasher", "TV"]
 
 # --- DB helpers ---
-
 
 def _distinct_values_from_db(column):
     with Session() as session:
