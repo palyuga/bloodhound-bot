@@ -3,6 +3,7 @@ telethon>=1.34.0
 sqlalchemy>=2.0.30
 schedule>=1.2.1
 python-dotenv~=1.1.1
+python-telegram-bot~=22.4
 
 # Database driver
 # SQLite by default (built into Python).
@@ -10,3 +11,4 @@ python-dotenv~=1.1.1
 # psycopg2-binary>=2.9.9
 # For MySQL/MariaDB:
 # pymysql>=1.1.1
+

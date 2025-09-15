@@ -19,7 +19,7 @@ RE_HEADER_DISTRICT = re.compile(rf"^\s*#({TEXT_BEFORE_EMOJI})")
 RE_HEADER_METRO = re.compile(rf"🚇\s*#({TEXT_BEFORE_EMOJI})")
 
 RE_ADDRESS = re.compile(rf"📍\s*({TEXT_BEFORE_EMOJI}[^#\n]{{0,120}})")
-RE_PRICE = re.compile(r"💰(?:.*?\$)?\s*([0-9\.,\s]+)\$", re.IGNORECASE)
+RE_PRICE = re.compile(r"💰.*?\$?\s*([0-9][0-9\.,]*)\$?", re.IGNORECASE)
 RE_SIZE = re.compile(r"(\d{1,4}(?:\.\d+)?)\s*(?:Sq\.m|sqm|m2)", re.IGNORECASE)
 RE_ROOMS = re.compile(r"#(\d+)Bed", re.IGNORECASE)
 RE_RENT = re.compile(r"#Rent", re.IGNORECASE)
@@ -137,7 +137,7 @@ def parse_post(message: Message | object, channel_id: str) -> Optional[Post]:
 
     price = None
     if m := RE_PRICE.findall(text):
-        # take the last one
+        # take the last one (actual for discounts)
         price = _clean_int(m[-1])
 
     size_sqm = None
@@ -284,3 +284,7 @@ def normalize_metro(m: str) -> str | None:
         return None
     m = m.strip().replace(" ", "")
     return METRO_MAP.get(m.lower(), m)
+
+def _clean_price(s: str) -> int:
+    """Remove commas, dots, spaces and convert to int"""
+    return int(s.replace(",", "").replace(".", "").replace(" ", ""))

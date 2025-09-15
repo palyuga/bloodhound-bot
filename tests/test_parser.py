@@ -268,7 +268,7 @@ All New apartment with Cozy Interior & City View - No one Lived ❗️
     assert "Oven" in post.features
     assert "SmartTV" in post.features
 
-def test_real_post_rent_6():
+def test_real_post_sell_6():
     text = """#Vera 🚇 #Libertysquare  
 📍11 Lado Gudiashvili  
 
@@ -310,3 +310,45 @@ Prime Location:
     assert post.address == "11 Lado Gudiashvili"
     assert post.floor == 2
     assert post.size_sqm == 54.9
+
+def test_real_post_rent_6():
+    text = """#Vake 🚇 #Rustaveli
+📍82 Irakli Abashidze Street
+
+🪴Near Vake Park
+
+🏢 #3Bed Apartment for #Rent 
+✨  #OldBuilding| #Mixed 
+🏠200 Sq.m | 2 Floor | #CentralHeating
+
+✅#Balcony (2) ✅#WiFi 
+✅#Stove ✅#Microwave
+✅#Oven ✅#Conditioner (2)
+✅#Dishwasher ✅#TV 
+
+✖️ParkingPlace ✖️Elevator
+
+👬Tenants: 1-6
+🐕Pets: #ByAgreement
+🕐 #6Month #12Month 
+
+💰 $1500 + Deposit $1500 | 
+ 0% Commission
+#Price1200plus
+
+📲 @David_Tibelashvili | 
++995 599 20 67 16 #Vlad
+🌟 Check all listings | Reviews
+
+📷 Instagram 🗳 FB 🎥 YouTube"""
+    post = parse_post(make_msg(text, msg_id=100), channel_id="12345")
+    assert post is not None
+    assert post.type == PostType.rent
+    assert post.price == 1500
+    assert post.rooms == 3
+    assert post.district == "Vake"
+    assert post.metro == "Rustaveli"
+    assert post.address == "82 Irakli Abashidze Street"
+    assert post.floor == 2
+    assert post.size_sqm == 200
+    assert "Balcony" in post.features
