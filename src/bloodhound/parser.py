@@ -35,6 +35,9 @@ MIN_REQUIRED_STRUCTURED_FIELDS = 3  # guard: require at least N of tags to be pr
 DISTRICT_MAP = {
     "dighomi": "Digomi",
     "dididighomi": "DidiDigomi",
+    "chughureti": "Chugureti",
+    "chughuretti": "Chugureti",
+    "chuguretti": "Chugureti"
 }
 
 METRO_MAP = {
