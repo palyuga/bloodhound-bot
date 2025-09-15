@@ -57,7 +57,7 @@ Session = sessionmaker(bind=engine, future=True)
 PAGE_SIZE = 10
 
 # --- Predefined features scaffold ---
-PREDEFINED_FEATURES = ["Balcony", "Parking", "Conditioner", "Oven", "Dishwasher", "TV"]
+PREDEFINED_FEATURES = ["Balcony", "Conditioner", "Oven", "Dishwasher", "TV"]
 
 # --- DB helpers ---
 
