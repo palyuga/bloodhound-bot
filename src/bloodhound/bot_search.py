@@ -378,6 +378,10 @@ async def pets_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await q.answer()
     _, val = q.data.split("::", 1)
     context.user_data["pets_allowed"] = True if val == "yes" else False
+
+    if context.user_data.get("features_selected") is None:
+        context.user_data["features_selected"] = []
+
     return await features_callback(update, context)
 
 
@@ -386,7 +390,7 @@ async def features_callback(update: Any, context: ContextTypes.DEFAULT_TYPE):
     feats = PREDEFINED_FEATURES
     context.user_data.setdefault("features_selected", [])
 
-    sel = context.user_data.get("features_selected", [])
+    sel = context.user_data.get("features_selected") or []
 
     # Only show "Next" button if at least one feature is selected
     done_data = "features::done" if sel else None
